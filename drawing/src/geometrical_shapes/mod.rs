@@ -1,7 +1,6 @@
 use rand::{Rng, rng};
 use raster::Color;
 
-/// دالة توليد لون عشوائي
 fn random_color() -> Color {
     let mut rng = rng();
     Color::rgb(
@@ -11,7 +10,6 @@ fn random_color() -> Color {
     )
 }
 
-/// Traits
 pub trait Drawable {
     fn draw(&self, image: &mut impl Displayable);
     fn color(&self) -> Color;
