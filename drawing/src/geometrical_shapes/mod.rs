@@ -1,8 +1,8 @@
-use rand::{Rng, rng};
+use rand::{thread_rng, Rng};
 use raster::Color;
 
 fn random_color() -> Color {
-    let mut rng = rng();
+     let mut rng = thread_rng();
     Color::rgb(
         rng.gen_range(0..=255),
         rng.gen_range(0..=255),
@@ -35,7 +35,7 @@ impl Point {
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        let mut rng = rng();
+       let mut rng = thread_rng();
         Point {
             x: rng.gen_range(0..width),
             y: rng.gen_range(0..height),
@@ -50,7 +50,7 @@ impl Drawable for Point {
     }
 
     fn color(&self) -> Color {
-        self.color.clone()
+        Color::rgb(255, 255, 255)
     }
 }
 
@@ -80,12 +80,13 @@ impl Line {
 }
 
 impl Drawable for Line {
+    // Brisenham's line algorithm
     fn draw(&self, image: &mut impl Displayable) {
         let dx = (self.end.x - self.start.x).abs();
         let dy = (self.end.y - self.start.y).abs();
         let sx = if self.start.x < self.end.x { 1 } else { -1 };
         let sy = if self.start.y < self.end.y { 1 } else { -1 };
-        let mut err = dx - dy;
+        let mut err = dx - dy; // Variable Error
         let mut current = self.start.clone();
 
         loop {
@@ -106,7 +107,7 @@ impl Drawable for Line {
     }
 
     fn color(&self) -> Color {
-        random_color()
+       Color::rgb(255, 255, 255)
     }
 }
 
@@ -148,7 +149,7 @@ impl Drawable for Rectangle {
     }
 
     fn color(&self) -> Color {
-      self.color.clone()
+      Color::rgb(255, 255, 255)
     }
 }
 
@@ -180,7 +181,7 @@ impl Drawable for Triangle {
     }
 
     fn color(&self) -> Color {
-        random_color()
+       Color::rgb(255, 255, 255)
     }
 }
 
@@ -204,8 +205,8 @@ impl Circle {
     }
 
     pub fn random(width: i32, height: i32) -> Self {
-        let mut rng = rng();
-        let radius = rng.gen_range(10..50);
+        let mut rng = thread_rng();
+        let radius = rng.gen_range(0..height);
         Circle {
             center: Point::random(width, height),
             radius,
@@ -216,12 +217,16 @@ impl Circle {
 
 impl Drawable for Circle {
     fn draw(&self, image: &mut impl Displayable) {
+        // let (cx, cy, r) = (self.center.x, self.center.y, self.radius);
+        // let mut x = r;
+        // let mut y = 0;
+        // let mut err = 0;
         let (cx, cy, r) = (self.center.x, self.center.y, self.radius);
-        let mut x = r;
-        let mut y = 0;
-        let mut err = 0;
+        let mut x = 0;
+        let mut y = r;
+        let mut d = 1 - r;
 
-        while x >= y {
+        while x <= y {
             image.display(cx + x, cy + y, self.color());
             image.display(cx + y, cy + x, self.color());
             image.display(cx - y, cy + x, self.color());
@@ -231,12 +236,19 @@ impl Drawable for Circle {
             image.display(cx + y, cy - x, self.color());
             image.display(cx + x, cy - y, self.color());
 
-            y += 1;
-            if err <= 0 {
-                err += 2 * y + 1;
+            // y += 1;
+            // if err <= 0 {
+            //     err += 2 * y + 1;
+            // } else {
+            //     x -= 1;
+            //     err -= 2 * x + 1;
+            // }
+            x += 1;
+            if d < 0 {
+                d += 2 * x + 1;
             } else {
-                x -= 1;
-                err -= 2 * x + 1;
+                y -= 1;
+                d += 2 * (x - y) + 1;
             }
         }
     }
